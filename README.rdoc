@@ -6,7 +6,7 @@ Introspect the Ruby Heap by listing, counting, locating references to and detach
 
 Memory management is an important factor within every application. It can slow down the performance of your application and even of your system. Unlike other programming languages, such as C or Pascal, Ruby does not let you handle the memory allocation directly.
 
-The garbage collector (GC) controls releasing allocated memory. In order to let the GC free an object, you will have to ensure that there are no references to that object or else your memory usage will grow. Finding out why memory does not get released (memory leaks) is like finding a needle in a haystack.
+The garbage collector (<tt>GC</tt>) controls releasing allocated memory. In order to let the GC free an object, you will have to ensure that there are no references to that object or else your memory usage will grow. Finding out why memory does not get released (memory leaks) is like finding a needle in a haystack.
 
 RubyMass can help you tackle memory leaks as you can list (and count) which Ruby objects (<tt>Ruby mass :D</tt>) are in memory. Also, you can locate references to a certain object and remove them if wanted. Try out RubyMass and feel free to send in pull requests and/or suggestions.
 
@@ -38,14 +38,14 @@ Using RubyMass is pretty straightforward. All examples are based using the follo
 This is a shortcut to the <tt>ObjectSpace._id2ref</tt> method:
 
   $ f = Foo.new
-  $ o = Objects[f.object_id]
+  $ o = Mass[f.object_id]
   $ f.object_id == o.object_id #=> true
 
 ==== Listing objects
 
-Just call <tt>Objects.group</tt> to get a Hash containing class names with object_ids of its instances. You can narrow the result by specifying a namespace.
+Just call <tt>Mass.group</tt> to get a Hash containing class names with object_ids of its instances. You can narrow the result by specifying a namespace.
 
-  $ Objects.group Foo #=> {}
+  $ Mass.group Foo #=> {}
 
   $ f = Foo.new
   $ b1 = Foo::Bar.new
@@ -57,28 +57,28 @@ Just call <tt>Objects.group</tt> to get a Hash containing class names with objec
   $ b2.object_id #=> 2154126780
   $ t.object_id #=> 2154372180
 
-  $ Objects.group Foo #=> {"Foo"=>[2154166500], "Foo::Bar"=>[2154037400, 2154126780]}
-  $ Objects.group Foo::Bar #=> {"Foo::Bar"=>[2154037400, 2154126780]}
-  $ Objects.group Thing #=> {"Thing"=>[2154372180]}
-  $ Objects.group #=> {{"String"=>[2151797000, 2151797080, 2151797120, 2151797140, ... a lot of more classes and object_ids}
-  $ Objects.group OneMoreThing #=> {}
+  $ Mass.group Foo #=> {"Foo"=>[2154166500], "Foo::Bar"=>[2154037400, 2154126780]}
+  $ Mass.group Foo::Bar #=> {"Foo::Bar"=>[2154037400, 2154126780]}
+  $ Mass.group Thing #=> {"Thing"=>[2154372180]}
+  $ Mass.group #=> {"String"=>[2151797000, 2151797080, 2151797120, 2151797140, ... a lot of more classes and object_ids}
+  $ Mass.group OneMoreThing #=> {}
 
 ==== Counting objects
 
-The method <tt>Objects.count</tt> returns a similar Hash as <tt>Objects.group</tt>, but instead of arrays of object_ids it contains the number of objects. Continueing with the previous example, you will get the following results:
+The method <tt>Mass.count</tt> returns a similar Hash as <tt>Mass.group</tt>, but instead of arrays of object_ids it contains the number of objects. Continueing with the previous example, you will get the following results:
 
-  $ Objects.count Foo #=> {"Foo"=>1, "Foo::Bar"=>2}
-  $ Objects.count Foo::Bar #=> {"Foo::Bar"=>2}
-  $ Objects.count Thing #=> {"Thing"=>1}
-  $ Objects.count #=> {"String"=>37589, "Array"=>11883, ... a lot of more classes and amounts}
-  $ Objects.count OneMoreThing #=> {}
+  $ Mass.count Foo #=> {"Foo"=>1, "Foo::Bar"=>2}
+  $ Mass.count Foo::Bar #=> {"Foo::Bar"=>2}
+  $ Mass.count Thing #=> {"Thing"=>1}
+  $ Mass.count #=> {"String"=>37589, "Array"=>11883, ... a lot of more classes and amounts}
+  $ Mass.count OneMoreThing #=> {}
 
 ==== Pretty print the amount of objects in memory
 
 You can also pretty print the result of the <tt>Object.count</tt> method:
 
 
-  $ Objects.print Foo
+  $ Mass.print Foo
   +==================================================+
    Objects within Foo namespace
   +==================================================+
@@ -86,7 +86,7 @@ You can also pretty print the result of the <tt>Object.count</tt> method:
     Foo: 1
   +==================================================+
 
-  $ Objects.print
+  $ Mass.print
   +==================================================+
    Objects within environment
   +==================================================+
@@ -97,7 +97,7 @@ You can also pretty print the result of the <tt>Object.count</tt> method:
     ... a lot of more classes and amounts
   +==================================================+
 
-  $ Objects.print OneMoreThing
+  $ Mass.print OneMoreThing
   +==================================================+
    Objects within OneMoreThing namespace
   +==================================================+

@@ -1,4 +1,4 @@
-# == Objects
+# == Mass
 #
 # This module offers the following either within the whole Ruby Heap or narrowed by namespace:
 #
@@ -8,7 +8,7 @@
 # - locating references to a specified object
 # - detaching references to a specified object (in order to be able to release the object memory using the GC)
 #
-module Objects
+module Mass
   extend self
 
   # Returns the object corresponding to the passed object_id.
@@ -16,7 +16,7 @@ module Objects
   # ==== Example
   #
   #   log_line = LogLine.new
-  #   object = Objects[log_line.object_id]
+  #   object = Mass[log_line.object_id]
   #   log_line.object_id == object.object_id #=> true
   #
   def [](object_id)
@@ -36,7 +36,7 @@ module Objects
   #   end
   #
   #   a1 = A.new
-  #   Objects.references(a1) #=> {}
+  #   Mass.references(a1) #=> {}
   #
   #   a2 = A.new
   #   a2.object_id #=> 2152675940
@@ -46,10 +46,10 @@ module Objects
   #   b.object_id #=> 2152681800
   #   b.a = a1
   #
-  #   Objects.references(a1) #=> {"A#2152675940" => [:@a], "B#2152681800" => [:@a]}
-  #   Objects.references(a1, A) #=> {"A#2152675940" => [:@a]}
-  #   Objects.references(a1, B) #=> {"B#2152681800" => [:@a]}
-  #   Objects.references(a1, Hash) #=> {}
+  #   Mass.references(a1) #=> {"A#2152675940" => [:@a], "B#2152681800" => [:@a]}
+  #   Mass.references(a1, A) #=> {"A#2152675940" => [:@a]}
+  #   Mass.references(a1, B) #=> {"B#2152681800" => [:@a]}
+  #   Mass.references(a1, Hash) #=> {}
   #
   def references(object, mod = nil)
     instances_within(mod).inject({}) do |hash, instance|
@@ -60,7 +60,7 @@ module Objects
     end
   end
 
-  # Removes all references to the passed object. Doing this ensures the GarbageCollect to free memory used by the object. Use at own risk.
+  # Removes all references to the passed object. Doing this ensures the GarbageCollector to free memory used by the object. Use at own risk.
   #
   def detach(object, mod = nil)
     detached = true
