@@ -23,6 +23,42 @@ module Mass
     ObjectSpace._id2ref object_id
   end
 
+  # Returns a hash containing classes with the object_ids of its instances currently in the Ruby Heap. You can narrow the result by namespace.
+  #
+  def index(mod = nil)
+    instances_within(mod).inject({}) do |hash, object|
+      (hash[object.class.name] ||= []) << object.object_id
+      hash
+    end
+  end
+
+  # Returns a hash containing classes with the amount of its instances currently in the Ruby Heap. You can narrow the result by namespace.
+  #
+  def count(mod = nil)
+    index(mod).inject({}) do |hash, (key, value)|
+      hash[key] = value.size
+      hash
+    end
+  end
+
+  # Prints all object instances within either the whole environment or narrowed by namespace group by class.
+  #
+  def print(mod = nil)
+    count(mod).tap do |stats|
+      puts "\n"
+      puts "=" * 50
+      puts " Objects within #{mod ? "#{mod.name} namespace" : "environment"}"
+      puts "=" * 50
+      stats.keys.sort{|a, b| [stats[b], a] <=> [stats[a], b]}.each do |key|
+        puts "  #{key}: #{stats[key]}"
+      end
+      puts " - no objects instantiated -" if stats.empty?
+      puts "=" * 50
+      puts "\n"
+    end
+    nil
+  end
+
   # Returns all references to the passed object. You can narrow the namespace of the objects referencing to the object.
   #
   # ==== Example
@@ -75,49 +111,43 @@ module Mass
     detached
   end
 
-  # Prints all object instances within either the whole environment or narrowed by namespace group by class.
-  #
-  def print(mod = nil)
-    count(mod).tap do |stats|
-      puts "\n"
-      puts "=" * 50
-      puts " Objects within #{mod ? "#{mod.name} namespace" : "environment"}"
-      puts "=" * 50
-      stats.keys.sort{|a, b| [stats[b], a] <=> [stats[a], b]}.each do |key|
-        puts "  #{key}: #{stats[key]}"
-      end
-      puts " - no objects instantiated -" if stats.empty?
-      puts "=" * 50
-      puts "\n"
-    end
-    nil
-  end
-
-  # Returns a hash containing classes with the amount of its instances currently in the Ruby Heap. You can narrow the result by namespace.
-  #
-  def count(mod = nil)
-    index(mod).inject({}) do |hash, (key, value)|
-      hash[key] = value.size
-      hash
-    end
-  end
-
-  # Returns a hash containing classes with the object_ids of its instances currently in the Ruby Heap. You can narrow the result by namespace.
-  #
-  def index(mod = nil)
-    instances_within(mod).inject({}) do |hash, object|
-      (hash[object.class.name] ||= []) << object.object_id
-      hash
-    end
-  end
-
 private
 
-  # Extracts and returns all references between the passed object and instance.
+  # Returns all classes within a certain namespace.
   #
-  def extract_references(instance, object)
-    instance.instance_variables.select do |name|
-      matches? instance.instance_variable_get(name), object
+  def classes_within(mod, initial_array = nil)
+    mod.constants.inject(initial_array || [(mod if mod.is_a? Class)].compact) do |array, c|
+      const = mod.const_get c
+
+      if !array.include?(const) && (const.is_a?(Class) || const.is_a?(Module)) && const.name.match(/^#{mod.name}/)
+        if const.is_a?(Class)
+          array << const
+        end
+        if const.is_a?(Class) || const.is_a?(Module)
+          classes_within(const, array)
+        end
+      end
+
+      array
+    end
+  end
+
+  # Return all instances. You can narrow the results by passing a namespace.
+  #
+  def instances_within(mod)
+    GC.start
+    [].tap do |array|
+      if mod.nil?
+        ObjectSpace.each_object do |object|
+          array << object
+        end
+      else
+        classes_within(mod).each do |klass|
+          ObjectSpace.each_object(klass) do |object|
+            array << object
+          end
+        end
+      end
     end
   end
 
@@ -130,6 +160,14 @@ private
       variable.any?{|x| matches? x, object}
     else
       false
+    end
+  end
+
+  # Extracts and returns all references between the passed object and instance.
+  #
+  def extract_references(instance, object)
+    instance.instance_variables.select do |name|
+      matches? instance.instance_variable_get(name), object
     end
   end
 
@@ -166,44 +204,6 @@ private
     end
 
     detached
-  end
-
-  # Return all instances. You can narrow the results by passing a namespace.
-  #
-  def instances_within(mod)
-    GC.start
-    [].tap do |array|
-      if mod.nil?
-        ObjectSpace.each_object do |object|
-          array << object
-        end
-      else
-        classes_within(mod).each do |klass|
-          ObjectSpace.each_object(klass) do |object|
-            array << object
-          end
-        end
-      end
-    end
-  end
-
-  # Returns all classes within a certain namespace.
-  #
-  def classes_within(mod, initial_array = nil)
-    mod.constants.inject(initial_array || [(mod if mod.is_a? Class)].compact) do |array, c|
-      const = mod.const_get c
-
-      if !array.include?(const) && (const.is_a?(Class) || const.is_a?(Module)) && const.name.match(/^#{mod.name}/)
-        if const.is_a?(Class)
-          array << const
-        end
-        if const.is_a?(Class) || const.is_a?(Module)
-          classes_within(const, array)
-        end
-      end
-
-      array
-    end
   end
 
 end
