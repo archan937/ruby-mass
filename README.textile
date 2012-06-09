@@ -28,8 +28,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 
 h2. Last remarks
 
-Please check out "test/unit/test_objects.rb":https://github.com/archan937/ruby-mass/blob/master/test/unit/test_objects.rb.
-You can run the unit tests with @rake@ within the terminal.
+Please check out "test/unit/test_objects.rb":https://github.com/archan937/ruby-mass/blob/master/test/unit/test_objects.rb. You can run the unit tests with @rake@ within the terminal.
 
 Also, the RubyMass repo is provided with @script/console@ which you can use for testing purposes.
 
