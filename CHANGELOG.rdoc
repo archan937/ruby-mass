@@ -1,0 +1,5 @@
+= RubyMass CHANGELOG
+
+== Version 0.1.0 (June 9, 2012)
+
+* Initial release

@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+require "rubygems"
+require "bundler"
+
+Bundler.require :gem_default, :gem_development
+
+puts "Loading development environment"
+
+Pry.start
