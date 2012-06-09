@@ -3,4 +3,5 @@
 .rvmrc
 .DS_Store
 Gemfile.lock
+doc
 pkg

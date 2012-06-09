@@ -7,6 +7,7 @@ group :gem_default do
 end
 
 group :gem_development do
+  gem "horo"
   gem "pry"
 end
 
