@@ -62,9 +62,9 @@ module Objects
 
   # Removes all references to the passed object. Doing this ensures the GarbageCollect to free memory used by the object. Use at own risk.
   #
-  def detach(object)
+  def detach(object, mod = nil)
     detached = true
-    instances_within(nil).each do |instance|
+    instances_within(mod).each do |instance|
       extract_references(instance, object).each do |name|
         unless remove_references(instance, object, name)
           detached = false
