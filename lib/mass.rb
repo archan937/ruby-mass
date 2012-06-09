@@ -2,7 +2,7 @@
 #
 # This module offers the following either within the whole Ruby Heap or narrowed by namespace:
 #
-# - listing objects grouped by class
+# - indexing objects grouped by class
 # - counting objects grouped by class
 # - printing objects grouped by class
 # - locating references to a specified object
@@ -96,7 +96,7 @@ module Mass
   # Returns a hash containing classes with the amount of its instances currently in the Ruby Heap. You can narrow the result by namespace.
   #
   def count(mod = nil)
-    group(mod).inject({}) do |hash, (key, value)|
+    index(mod).inject({}) do |hash, (key, value)|
       hash[key] = value.size
       hash
     end
@@ -104,7 +104,7 @@ module Mass
 
   # Returns a hash containing classes with the object_ids of its instances currently in the Ruby Heap. You can narrow the result by namespace.
   #
-  def group(mod = nil)
+  def index(mod = nil)
     instances_within(mod).inject({}) do |hash, object|
       (hash[object.class.name] ||= []) << object.object_id
       hash

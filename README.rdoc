@@ -1,6 +1,6 @@
 == RubyMass
 
-Introspect the Ruby Heap by listing, counting, locating references to and detaching (in order to release) objects - optionally narrowing by namespace.
+Introspect the Ruby Heap by indexing, counting, locating references to and detaching (in order to release) objects - optionally narrowing by namespace.
 
 === Introduction
 
@@ -43,9 +43,9 @@ This is a shortcut to the <tt>ObjectSpace._id2ref</tt> method:
 
 ==== Listing objects
 
-Just call <tt>Mass.group</tt> to get a Hash containing class names with object_ids of its instances. You can narrow the result by specifying a namespace.
+Just call <tt>Mass.index</tt> to get a Hash containing class names with object_ids of its instances. You can narrow the result by specifying a namespace.
 
-  $ Mass.group Foo #=> {}
+  $ Mass.index Foo #=> {}
 
   $ f = Foo.new
   $ b1 = Foo::Bar.new
@@ -57,15 +57,15 @@ Just call <tt>Mass.group</tt> to get a Hash containing class names with object_i
   $ b2.object_id #=> 2154126780
   $ t.object_id #=> 2154372180
 
-  $ Mass.group Foo #=> {"Foo"=>[2154166500], "Foo::Bar"=>[2154037400, 2154126780]}
-  $ Mass.group Foo::Bar #=> {"Foo::Bar"=>[2154037400, 2154126780]}
-  $ Mass.group Thing #=> {"Thing"=>[2154372180]}
-  $ Mass.group #=> {"String"=>[2151797000, 2151797080, 2151797120, 2151797140, ... a lot of more classes and object_ids}
-  $ Mass.group OneMoreThing #=> {}
+  $ Mass.index Foo #=> {"Foo"=>[2154166500], "Foo::Bar"=>[2154037400, 2154126780]}
+  $ Mass.index Foo::Bar #=> {"Foo::Bar"=>[2154037400, 2154126780]}
+  $ Mass.index Thing #=> {"Thing"=>[2154372180]}
+  $ Mass.index #=> {"String"=>[2151797000, 2151797080, 2151797120, 2151797140, ... a lot of more classes and object_ids}
+  $ Mass.index OneMoreThing #=> {}
 
 ==== Counting objects
 
-The method <tt>Mass.count</tt> returns a similar Hash as <tt>Mass.group</tt>, but instead of arrays of object_ids it contains the number of objects. Continueing with the previous example, you will get the following results:
+The method <tt>Mass.count</tt> returns a similar Hash as <tt>Mass.index</tt>, but instead of arrays of object_ids it contains the number of objects. Continueing with the previous example, you will get the following results:
 
   $ Mass.count Foo #=> {"Foo"=>1, "Foo::Bar"=>2}
   $ Mass.count Foo::Bar #=> {"Foo::Bar"=>2}
