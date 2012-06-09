@@ -65,7 +65,8 @@ Just call <tt>Mass.index</tt> to get a Hash containing class names with object_i
 
 ==== Counting objects
 
-The method <tt>Mass.count</tt> returns a similar Hash as <tt>Mass.index</tt>, but instead of arrays of object_ids it contains the number of objects. Continueing with the previous example, you will get the following results:
+The method <tt>Mass.count</tt> returns a similar Hash as <tt>Mass.index</tt>, but instead of arrays of object_ids it contains the number of objects.
+Continueing with the previous example, you will get the following results:
 
   $ Mass.count Foo #=> {"Foo"=>1, "Foo::Bar"=>2}
   $ Mass.count Foo::Bar #=> {"Foo::Bar"=>2}
@@ -106,16 +107,51 @@ You can also pretty print the result of the <tt>Object.count</tt> method:
 
 ==== Locating object references
 
-Todo.
+Along with indexing (and counting) objects, locating object references is very important when solving memory leakage. An example:
 
-==== Detaching objects (in order to free memory)
+  class Foo
+    attr_accessor :foo
+  end
 
-Todo.
+  class Bar
+    attr_accessor :fool
+  end
+
+  $ foo1 = Foo.new
+  $ Mass.references(foo1) #=> {}
+
+  $ foo2 = Foo.new
+  $ foo2.object_id #=> 2155577620
+  $ foo2.foo = foo1
+
+  $ bar = Bar.new
+  $ bar.object_id #=> 2155383980
+  $ bar.fool = foo1
+
+  $ Mass.references(foo1) #=> {"Foo#2155577620" => [:@foo], "Bar#2155383980" => [:@fool]}
+  $ Mass.references(foo1, Foo) #=> {"Foo#2155577620" => [:@foo]}
+  $ Mass.references(foo1, Bar) #=> {"Bar#2155383980" => [:@fool]}
+  $ Mass.references(foo1, Hash) #=> {}
+
+==== Detaching objects (free allocated memory)
+
+After locating references to a certain object, you must remove them in order to let the garbage collector free the allocated memory of that object.
+Just call the <tt>Mass.detach</tt> method and it will remove the object references and invoke <tt>GC.start</tt> instructing the garbage collector to do its job.
+Continueing with the previous example, you will get the following results:
+
+  $ foo1.object_id #=> 2164554700
+  $ Mass.index(Foo) #=> {"Foo"=>[2155577620, 2164554700]}
+
+  $ Mass.detach(foo1) #=> true
+  $ foo1 = nil #=> setting console variable / pointer (and thus object reference to foo1) to nil
+
+  $ Mass.index(Foo) #=> {"Foo"=>[2155577620]}
+
+<b>Note</b>: Use <tt>Mass.detach</tt> at <b>own risk</b>. Be sure you know what you are doing!
 
 === Last remarks
 
-Please check out {test/unit/test_objects.rb}[https://github.com/archan937/ruby-mass/blob/master/test/unit/test_objects.rb]. You can run the unit tests with <tt>rake</tt> within the terminal.
-
+Please check out {test/unit/test_mass.rb}[https://github.com/archan937/ruby-mass/blob/master/test/unit/test_mass.rb]. You can run the unit tests with <tt>rake</tt> within the terminal.
 Also, the RubyMass repo is provided with <tt>script/console</tt> which you can use for testing purposes.
 
 === Contact me
