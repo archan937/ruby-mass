@@ -3,8 +3,8 @@
 Gem::Specification.new do |gem|
   gem.authors       = ["Paul Engel"]
   gem.email         = ["paul.engel@holder.nl"]
-  gem.description   = %q{Introspect the Ruby Heap by listing, counting, searching references to and detaching (in order to release) objects - optionally narrowing by namespace}
-  gem.summary       = %q{Introspect the Ruby Heap by listing, counting, searching references to and detaching (in order to release) objects - optionally narrowing by namespace}
+  gem.description   = %q{Introspect the Ruby Heap by listing, counting, locating references to and detaching (in order to release) objects - optionally narrowing by namespace}
+  gem.summary       = %q{Introspect the Ruby Heap by listing, counting, locating references to and detaching (in order to release) objects - optionally narrowing by namespace}
   gem.homepage      = "https://github.com/archan937/ruby-objects"
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
