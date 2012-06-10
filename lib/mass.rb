@@ -162,14 +162,21 @@ private
   def instances_within(*mods)
     GC.start
     [].tap do |array|
+      object_ids = []
       if mods.empty?
         ObjectSpace.each_object do |object|
-          array << object
+          unless object_ids.include? object.object_id
+            array << object
+            object_ids << object.object_id
+          end
         end
       else
         classes_within(mods).each do |klass|
           ObjectSpace.each_object(klass) do |object|
-            array << object
+            unless object_ids.include? object.object_id
+              array << object
+              object_ids << object.object_id
+            end
           end
         end
       end
