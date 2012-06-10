@@ -95,7 +95,7 @@ module Mass
   #
   def references(object, *mods)
     return {} if object.nil?
-    instances_within(*mods).inject({}) do |hash, instance|
+    object._reference_instances(*mods).inject({}) do |hash, instance|
       unless (refs = extract_references(instance, object)).empty?
         hash["#{instance.class.name}##{instance.object_id}"] = refs.collect(&:to_s).sort{|a, b| a <=> b}
       end
@@ -106,35 +106,35 @@ module Mass
   # Removes all references to the passed object and yielding block when given and references within entire environment removed successfully. Use at own risk.
   #
   def detach(object, *mods, &block)
-    return false if object.nil?
-    _detach(object, mods, true).tap do |detached|
-      yield if detached && block_given?
-    end
+    _detach(object, object._reference_instances(*mods), true, &block)
   end
 
   # Removes all references to the passed object and yielding block when given and references within passed namespaces removed successfully. Use at own risk.
   #
-  def detach!(object, *mods)
-    return false if object.nil?
-    _detach(object, mods, false).tap do |detached|
-      yield if detached && block_given?
-    end
+  def detach!(object, *mods, &block)
+    _detach(object, object._reference_instances(*mods), false, &block)
   end
 
 private
 
   # Removes all references to the passed object, yielding block when given and removed references successfully.
-  def _detach(object, mods, check_environment)
-    instances = instances_within(*mods).collect do |instance|
+  def _detach(object, instances, check_environment, &block)
+    return false if object.nil?
+    instances = instances.inject([]) do |array, instance|
       references = extract_references(instance, object)
-      [instance, references] unless references.empty?
+      unless references.empty? || array.any?{|x| x[0].object_id == instance.object_id}
+        array << [instance, references]
+      end
+      array
     end
-    removed = instances.compact.all? do |(instance, references)|
+    removed = instances.all? do |(instance, references)|
       references.all? do |name|
         remove_references(instance, object, name)
       end
     end
-    removed && (!check_environment || references(object).empty?)
+    (removed && (!check_environment || references(object).empty?)).tap do |detached|
+      yield if detached && block_given?
+    end
   end
 
   # Returns all classes within a certain namespace.
@@ -162,21 +162,14 @@ private
   def instances_within(*mods)
     GC.start
     [].tap do |array|
-      object_ids = []
       if mods.empty?
         ObjectSpace.each_object do |object|
-          unless object_ids.include? object.object_id
-            array << object
-            object_ids << object.object_id
-          end
+          array << object
         end
       else
         classes_within(mods).each do |klass|
           ObjectSpace.each_object(klass) do |object|
-            unless object_ids.include? object.object_id
-              array << object
-              object_ids << object.object_id
-            end
+            array << object
           end
         end
       end

@@ -167,7 +167,7 @@ module Unit
             "Unit::TestMass::Thing##{t.object_id}" => ["@food"]
           }, Mass.references(f1))
 
-          assert_equal(false, Mass.detach(f1, OneMoreThing){ f1 = nil })
+          assert_equal(false, Mass.detach(f1, OneMoreThing){f1 = nil})
 
           assert_equal({
             "Unit::TestMass::Foo" => [object_id, f2.object_id].sort,
@@ -179,7 +179,7 @@ module Unit
             "Unit::TestMass::Thing##{t.object_id}" => ["@food"]
           }, Mass.references(f1))
 
-          assert_equal(false, Mass.detach(f1, OneMoreThing, Thing){ f1 = nil })
+          assert_equal(false, Mass.detach(f1, OneMoreThing, Thing){f1 = nil})
 
           assert_equal({
             "Unit::TestMass::Foo" => [object_id, f2.object_id].sort,
@@ -190,7 +190,7 @@ module Unit
             "Unit::TestMass::Foo::Bar##{b.object_id}" => ["@fool"]
           }, Mass.references(f1))
 
-          assert_equal(false, Mass.detach(f1, Foo::Bar){ f1 = nil })
+          assert_equal(false, f1.detach(Foo::Bar){f1 = nil})
 
           assert_equal({
             "Unit::TestMass::Foo" => [object_id, f2.object_id].sort,
