@@ -88,9 +88,9 @@ module Mass
   #   b.object_id #=> 2152681800
   #   b.a = a1
   #
-  #   Mass.references(a1) #=> {"A#2152675940" => [:@a], "B#2152681800" => [:@a]}
-  #   Mass.references(a1, A) #=> {"A#2152675940" => [:@a]}
-  #   Mass.references(a1, B) #=> {"B#2152681800" => [:@a]}
+  #   Mass.references(a1) #=> {"A#2152675940" => ["@a"], "B#2152681800" => ["@a"]}
+  #   Mass.references(a1, A) #=> {"A#2152675940" => ["@a"]}
+  #   Mass.references(a1, B) #=> {"B#2152681800" => ["@a"]}
   #   Mass.references(a1, Hash) #=> {}
   #
   def references(object, *mods)

@@ -4,6 +4,10 @@ class Object
     Mass.send(:instances_within, *mods)
   end
 
+  def references(*mods)
+    Mass.references(self, *mods)
+  end
+
   def detach(*mods, &block)
     Mass.detach(self, *mods, &block)
   end

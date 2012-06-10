@@ -124,7 +124,7 @@ module Unit
         assert_equal({
           "Unit::TestMass::Foo##{f2.object_id}" => ["@foo"],
           "Unit::TestMass::Foo::Bar##{b.object_id}" => ["@fool"]
-        }, Mass.references(f1, Foo, Foo::Bar))
+        }, f1.references(Foo, Foo::Bar))
 
         assert_equal({
           "Unit::TestMass::Foo::Bar##{b.object_id}" => ["@fool"]
