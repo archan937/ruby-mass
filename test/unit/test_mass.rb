@@ -85,6 +85,12 @@ module Unit
         t = nil
       end
 
+      it "should tackle nil objects" do
+        assert_equal({}, Mass.references(nil))
+        assert_equal(false, Mass.detach(nil))
+        assert_equal(false, Mass.detach!(nil))
+      end
+
       # NOTE: The first assertion fails sometimes (maybe multiple test runs related?). If so, retry running the tests.
       it "should be able to locate object references" do
         f1 = Foo.new

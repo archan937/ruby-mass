@@ -94,6 +94,7 @@ module Mass
   #   Mass.references(a1, Hash) #=> {}
   #
   def references(object, *mods)
+    return {} if object.nil?
     instances_within(*mods).inject({}) do |hash, instance|
       unless (refs = extract_references(instance, object)).empty?
         hash["#{instance.class.name}##{instance.object_id}"] = refs.collect(&:to_s).sort{|a, b| a <=> b}
@@ -105,6 +106,7 @@ module Mass
   # Removes all references to the passed object and yielding block when given and references within entire environment removed successfully. Use at own risk.
   #
   def detach(object, *mods, &block)
+    return false if object.nil?
     _detach(object, mods, true).tap do |detached|
       yield if detached && block_given?
     end
@@ -113,6 +115,7 @@ module Mass
   # Removes all references to the passed object and yielding block when given and references within passed namespaces removed successfully. Use at own risk.
   #
   def detach!(object, *mods)
+    return false if object.nil?
     _detach(object, mods, false).tap do |detached|
       yield if detached && block_given?
       object = nil
