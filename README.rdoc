@@ -10,6 +10,8 @@ The garbage collector (<tt>GC</tt>) controls releasing allocated memory. In orde
 
 RubyMass can help you tackle memory leaks as you can list (and count) which Ruby objects (<tt>Ruby mass :D</tt>) are in memory. Also, you can locate references to a certain object and remove them if wanted. Try out RubyMass and feel free to send in pull requests and/or suggestions.
 
+<b>Note: RubyMass is successfully tested using Ruby 1.8.7, Ruby 1.9.2 and Ruby 1.9.3</b>
+
 === Installation
 
 ==== Using Bundler
@@ -41,7 +43,7 @@ This is a shortcut to the <tt>ObjectSpace._id2ref</tt> method:
   $ o = Mass[f.object_id]
   $ f.object_id == o.object_id #=> true
 
-==== Listing objects
+==== Indexing objects
 
 Just call <tt>Mass.index</tt> to get a Hash containing class names with object_ids of its instances. You can narrow the result by specifying a namespace.
 
@@ -128,9 +130,9 @@ Along with indexing (and counting) objects, locating object references is very i
   $ bar.object_id #=> 2155383980
   $ bar.fool = foo1
 
-  $ Mass.references(foo1) #=> {"Foo#2155577620" => [:@foo], "Bar#2155383980" => [:@fool]}
-  $ Mass.references(foo1, Foo) #=> {"Foo#2155577620" => [:@foo]}
-  $ Mass.references(foo1, Bar) #=> {"Bar#2155383980" => [:@fool]}
+  $ Mass.references(foo1) #=> {"Foo#2155577620" => ["@foo"], "Bar#2155383980" => ["@fool"]}
+  $ Mass.references(foo1, Foo) #=> {"Foo#2155577620" => ["@foo"]}
+  $ Mass.references(foo1, Bar) #=> {"Bar#2155383980" => ["@fool"]}
   $ Mass.references(foo1, Hash) #=> {}
 
 ==== Detaching objects (free allocated memory)
