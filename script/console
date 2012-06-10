@@ -4,6 +4,36 @@ require "bundler"
 
 Bundler.require :gem_default, :gem_development
 
-puts "Loading development environment"
+class Foo
+  attr_accessor :foo
+  class Bar
+    attr_accessor :fool
+  end
+end
+class Thing
+  attr_accessor :food
+end
+class OneMoreThing
+  attr_accessor :thing
+end
+
+<<-RUBY
+  f1 = Foo.new; nil
+  f2 = Foo.new
+  f2.foo = f1
+  b = Foo::Bar.new
+  b.fool = f1
+  t = Thing.new
+  t.food = f1
+  object_id = f1.object_id
+
+  Mass.detach(f1){f1 = nil}
+  Mass.gc!(f1)
+
+  Mass[object_id] rescue nil
+RUBY
+
+puts "Loading development environment (RubyMass #{RubyMass::VERSION})"
+puts "[0] pry(main)> defined classes Foo, Foo::Bar, Thing and OneMoreThing"
 
 Pry.start
