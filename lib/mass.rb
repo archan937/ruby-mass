@@ -23,19 +23,25 @@ module Mass
     ObjectSpace._id2ref object_id
   end
 
+  # A helper method after having called <tt>Mass.detach</tt>. It instructs the garbage collector to start when the optional passed variable is nil.
+  #
+  def gc!(variable = nil)
+    GC.start if variable.nil?
+  end
+
   # Returns a hash containing classes with the object_ids of its instances currently in the Ruby Heap. You can narrow the result by namespace.
   #
-  def index(mod = nil)
-    instances_within(mod).inject({}) do |hash, object|
-      (hash[object.class.name] ||= []) << object.object_id
+  def index(*mods)
+    instances_within(*mods).inject({}) do |hash, object|
+      ((hash[object.class.name] ||= []) << object.object_id).sort!
       hash
     end
   end
 
   # Returns a hash containing classes with the amount of its instances currently in the Ruby Heap. You can narrow the result by namespace.
   #
-  def count(mod = nil)
-    index(mod).inject({}) do |hash, (key, value)|
+  def count(*mods)
+    index(*mods).inject({}) do |hash, (key, value)|
       hash[key] = value.size
       hash
     end
@@ -43,11 +49,11 @@ module Mass
 
   # Prints all object instances within either the whole environment or narrowed by namespace group by class.
   #
-  def print(mod = nil)
-    count(mod).tap do |stats|
+  def print(*mods)
+    count(*mods).tap do |stats|
       puts "\n"
       puts "=" * 50
-      puts " Objects within #{mod ? "#{mod.name} namespace" : "environment"}"
+      puts " Objects within #{mods ? "#{mods.collect(&:name).sort} namespace" : "environment"}"
       puts "=" * 50
       stats.keys.sort{|a, b| [stats[b], a] <=> [stats[a], b]}.each do |key|
         puts "  #{key}: #{stats[key]}"
@@ -87,62 +93,79 @@ module Mass
   #   Mass.references(a1, B) #=> {"B#2152681800" => [:@a]}
   #   Mass.references(a1, Hash) #=> {}
   #
-  def references(object, mod = nil)
-    instances_within(mod).inject({}) do |hash, instance|
+  def references(object, *mods)
+    instances_within(*mods).inject({}) do |hash, instance|
       unless (refs = extract_references(instance, object)).empty?
-        hash["#{instance.class.name}##{instance.object_id}"] = refs.sort{|a, b| a.to_s <=> b.to_s}
+        hash["#{instance.class.name}##{instance.object_id}"] = refs.collect(&:to_s).sort{|a, b| a <=> b}
       end
       hash
     end
   end
 
-  # Removes all references to the passed object. Doing this ensures the GarbageCollector to free memory used by the object. Use at own risk.
+  # Removes all references to the passed object and yielding block when given and references within entire environment removed successfully. Use at own risk.
   #
-  def detach(object, mod = nil)
-    detached = true
-    instances_within(mod).each do |instance|
-      extract_references(instance, object).each do |name|
-        unless remove_references(instance, object, name)
-          detached = false
-        end
-      end
+  def detach(object, *mods, &block)
+    _detach(object, mods, true).tap do |detached|
+      yield if detached && block_given?
     end
-    GC.start
-    detached
+  end
+
+  # Removes all references to the passed object and yielding block when given and references within passed namespaces removed successfully. Use at own risk.
+  #
+  def detach!(object, *mods)
+    _detach(object, mods, false).tap do |detached|
+      yield if detached && block_given?
+      object = nil
+    end
   end
 
 private
 
+  # Removes all references to the passed object, yielding block when given and removed references successfully.
+  def _detach(object, mods, check_environment)
+    instances = instances_within(*mods).collect do |instance|
+      references = extract_references(instance, object)
+      [instance, references] unless references.empty?
+    end
+    removed = instances.compact.all? do |(instance, references)|
+      references.all? do |name|
+        remove_references(instance, object, name)
+      end
+    end
+    removed && (!check_environment || references(object).empty?)
+  end
+
   # Returns all classes within a certain namespace.
   #
-  def classes_within(mod, initial_array = nil)
-    mod.constants.inject(initial_array || [(mod if mod.is_a? Class)].compact) do |array, c|
-      const = mod.const_get c
-
-      if !array.include?(const) && (const.is_a?(Class) || const.is_a?(Module)) && const.name.match(/^#{mod.name}/)
-        if const.is_a?(Class)
-          array << const
-        end
-        if const.is_a?(Class) || const.is_a?(Module)
-          classes_within(const, array)
+  def classes_within(mods, initial_array = nil)
+    (initial_array || mods.select{|mod| mod.is_a? Class}).tap do |array|
+      mods.each do |mod|
+        mod.constants.each do |c|
+          const = mod.const_get c
+          if !array.include?(const) && (const.is_a?(Class) || const.is_a?(Module)) && const.name.match(/^#{mod.name}/)
+            if const.is_a?(Class)
+              array << const
+            end
+            if const.is_a?(Class) || const.is_a?(Module)
+              classes_within([const], array)
+            end
+          end
         end
       end
-
-      array
     end
   end
 
   # Return all instances. You can narrow the results by passing a namespace.
   #
-  def instances_within(mod)
+  def instances_within(*mods)
     GC.start
     [].tap do |array|
-      if mod.nil?
+      if mods.empty?
         ObjectSpace.each_object do |object|
           array << object
         end
       else
-        classes_within(mod).each do |klass|
+        classes_within(mods).each do |klass|
           ObjectSpace.each_object(klass) do |object|
             array << object
           end
