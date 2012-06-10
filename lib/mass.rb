@@ -118,7 +118,6 @@ module Mass
     return false if object.nil?
     _detach(object, mods, false).tap do |detached|
       yield if detached && block_given?
-      object = nil
     end
   end
 
