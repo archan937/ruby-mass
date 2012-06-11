@@ -21,7 +21,7 @@ class Object
 
   # A convenience method for Mass.references
   #
-  def references(*mods)
+  def _references(*mods)
     Mass.references(self, *mods)
   end
 
