@@ -78,7 +78,7 @@ Continueing with the previous example, you will get the following results:
 
 ==== Pretty print the amount of objects in memory
 
-You can also pretty print the result of the <tt>Object.count</tt> method:
+You can also pretty print the result of the <tt>Mass.count</tt> method:
 
 
   $ Mass.print Foo
