@@ -212,7 +212,7 @@ module Unit
 
       describe "using complex objects" do
         it "should be able to detach objects" do
-          # TODO
+          # TODO: although RubyMass is used within a very complex project using DataMapper write tests within a similar situation
         end
       end
     end
