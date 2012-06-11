@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["paul.engel@holder.nl"]
   gem.description   = %q{Introspect the Ruby Heap by indexing, counting, locating references to and detaching (in order to release) objects - optionally narrowing by namespace}
   gem.summary       = %q{Introspect the Ruby Heap by indexing, counting, locating references to and detaching (in order to release) objects - optionally narrowing by namespace}
-  gem.homepage      = "https://github.com/archan937/ruby-objects"
+  gem.homepage      = "https://github.com/archan937/ruby-mass"
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.files         = `git ls-files`.split("\n")
