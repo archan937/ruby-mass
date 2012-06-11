@@ -144,10 +144,10 @@ Continueing with the previous example, you will get the following results:
   $ foo1.object_id #=> 2164554700
   $ Mass.index(Foo) #=> {"Foo"=>[2155577620, 2164554700]}
 
-  # NOTE: Set foo1 to nil (within the block which only gets yielded after successfully detaching from references) as it also is a pointer to the allocated memory
+  # NOTE: Set foo1 to nil (within the block which only gets yielded after successfully detaching references) as it also is a pointer to the allocated memory
   $ Mass.detach(foo1){foo1 = nil} #=> true
 
-  # NOTE: This ensures that Mass invokes GC.start after but only after verifying that foo1 is nil pointer
+  # NOTE: This ensures that Mass invokes GC.start but only after verifying that foo1 is nil pointer
   $ Mass.gc!(foo1)
 
   $ Mass.index(Foo) #=> {"Foo"=>[2155577620]}
