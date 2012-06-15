@@ -50,19 +50,17 @@ module Mass
   # Prints all object instances within either the whole environment or narrowed by namespace group by class.
   #
   def print(*mods)
-    count(*mods).tap do |stats|
-      puts "\n"
-      puts "=" * 50
-      puts " Objects within #{mods ? "#{mods.collect(&:name).sort} namespace" : "environment"}"
-      puts "=" * 50
-      stats.keys.sort{|a, b| [stats[b], a] <=> [stats[a], b]}.each do |key|
-        puts "  #{key}: #{stats[key]}"
-      end
-      puts " - no objects instantiated -" if stats.empty?
-      puts "=" * 50
-      puts "\n"
+    stats = count(*mods)
+    puts "\n"
+    puts "=" * 50
+    puts " Objects within #{mods ? "#{mods.collect(&:name).sort} namespace" : "environment"}"
+    puts "=" * 50
+    stats.keys.sort{|a, b| [stats[b], a] <=> [stats[a], b]}.each do |key|
+      puts "  #{key}: #{stats[key]}"
     end
-    nil
+    puts " - no objects instantiated -" if stats.empty?
+    puts "=" * 50
+    puts "\n"
   end
 
   # Returns all references to the passed object. You can narrow the namespace of the objects referencing to the object.
