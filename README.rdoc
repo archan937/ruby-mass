@@ -1,4 +1,4 @@
-== RubyMass
+== RubyMass {<img src="https://secure.travis-ci.org/archan937/ruby-mass.png">}[http://travis-ci.org/archan937/ruby-mass]
 
 Introspect the Ruby Heap by indexing, counting, locating references to and detaching (in order to release) objects - optionally narrowing by namespace.
 
