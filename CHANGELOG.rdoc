@@ -1,5 +1,9 @@
 = RubyMass CHANGELOG
 
+== Version 0.1.2 (January 30, 2013)
+
+* Only listing objects which respond to `class` when indexing
+
 == Version 0.1.1 (June 11, 2012)
 
 * Renamed Object.references to Object._references
