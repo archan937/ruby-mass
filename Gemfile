@@ -13,7 +13,7 @@ end
 
 group :gem_test do
   gem "minitest"
-  gem "mocha"
+  gem "mocha", :require => "mocha/setup"
   gem "pry"
   gem "rake"
 end
