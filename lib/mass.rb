@@ -33,7 +33,7 @@ module Mass
   #
   def index(*mods)
     instances_within(*mods).inject({}) do |hash, object|
-      ((hash[object.class.name] ||= []) << object.object_id).sort! if object.respond_to?(:class)
+      ((hash[object.class.name] ||= []) << object.object_id).sort! if object.methods.collect(&:to_s).include?("class")
       hash
     end
   end
