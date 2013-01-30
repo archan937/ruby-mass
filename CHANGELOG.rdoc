@@ -1,5 +1,9 @@
 = RubyMass CHANGELOG
 
+== Version 0.1.3 (January 30, 2013)
+
+* Being able to tackle "blank slate" objects when checking whether they answer to `class`
+
 == Version 0.1.2 (January 30, 2013)
 
 * Only listing objects which respond to `class` when indexing
